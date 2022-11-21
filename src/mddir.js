@@ -19,22 +19,23 @@ var folderIgnoreList = [
   '.git',
   'node_modules'
 ];
-
-var getFolders = function(path){
-  fs.readdir(path, function(err, list){
+var partition = "-"
+var getFolders = function(p){
+  fs.readdir(p, function(err, list){
     if (err) return done(err);
     list.forEach(function(item){
-      if(fs.lstatSync(path + '/' + item).isDirectory() &&
+      if(fs.lstatSync(path.join(p,item)).isDirectory() &&
         folderIgnoreList.indexOf(item) === -1){
-        var folderDepth = path.split('/').length;
+        var folderDepth = p.split('/').length;
         if(folderDepth > depth){
           depth = folderDepth;
         }
-        var uniqueKey = path + '/' + item.replace(/\//g,'');
+        var uniqueKey = path.join(p,item.replace(/\//g,''));
+        var next = path.join(p,item);
         folders[uniqueKey] = {
           depth: folderDepth,
-          parentFolder: path,
-          path: path + '/' + item,
+          parentFolder: p,
+          path: next,
           name: item,
           folders: [],
           files: [],
@@ -42,17 +43,17 @@ var getFolders = function(path){
           parsed: false,
           marked: false
         };
-        getFolders(path + '/' + item, true);
+        getFolders(next, true);
       }
     });
     getFilesInFolders();
   });
 };
 
-var getFiles = function(path, key){
-  fs.readdir(path, function(err, list){
+var getFiles = function(p, key){
+  fs.readdir(p, function(err, list){
     list.forEach(function(item){
-      if(!fs.lstatSync(path + '/' + item).isDirectory()){
+      if(!fs.lstatSync(path.join(p,item)).isDirectory()){
         if(folders[key].files.length === 0 || folders[key].files.indexOf(item) === -1){
           folders[key].files.push(item);
         }
@@ -95,7 +96,7 @@ var listFolders = function(){
     // console.log('Number of folders: ' + numFolders);
     // generateText();
     generateMarkdown();
-    console.log(JSON.stringify(folders,null,2));
+    // console.log(JSON.stringify(folders,null,2));
   }
 };
 
@@ -109,7 +110,7 @@ var generateText = function(){
           var name = folder.path.split(searchPath)[1];
           outputText += name + '\n';
           for(var j = 0; j < name.length; j++){
-            outputText += '-';
+            outputText += partition;
           }
           outputText += '\n';
           if(folder.files.length === 0){
@@ -129,8 +130,8 @@ var generateText = function(){
   });
 };
 
-var addFileName = function(name, indent){
-  var indent = indent + 4;
+var addFileName = function(parentFolder, name, indent){
+  var indent = indent + 2;
   markdownText += '';
   for(var i = 0; i < indent; i++){
     // if(i % 3 === 0){
@@ -139,10 +140,12 @@ var addFileName = function(name, indent){
       markdownText += ' ';
     // }
   }
-  markdownText += '|-- ' + name + '\n';
+  markdownText +=  `${partition} [${name}](${path.join(".",parentFolder, name)})\n`;
 };
 
-var addFolderName = function(name, index){
+var addFolderName = function(root, parentFolder, index){
+  var name = path.join(root, parentFolder)
+  console.log("1", name, parentFolder, index)
   if(folders[name] !== undefined){
     if(folders[name].marked){
       return;
@@ -161,31 +164,34 @@ var addFolderName = function(name, index){
       //   markdownText += ' ';
       // }
     }
+    // console.log(folders[name])
     if(index === 1){
-      console.log('adding root folder');
-      markdownText += '|-- ' + startFolder + '\n';
+      // console.log('adding root folder');
+      markdownText += `${partition} ${startFolder}\n`;
     } else {
-      markdownText += '|-- ' + folders[name].name + '\n';
+      markdownText += `${partition} ${folders[name].name}\n`;
     }
+    // console.log("123", folder)
     // console.log('Folders[name]:');
     // console.log(folders[name]);
     folders[name].files.forEach(function(f){
-      addFileName(f, indent);
+      addFileName(parentFolder,f, indent);
     });
     folders[name].marked = true;
     folders[name].folders.forEach(function(f){
-      var path = name + '/' + f;
-      addFolderName(path, 2);
+      // console.log(folders[name])
+      var nextFolder = path.join(parentFolder,f);
+      addFolderName(root, nextFolder, 2);
     });    
   }
 };
 
 var generateMarkdown = function(){
-  addFolderName(key, 1);
+  addFolderName(key, "", 1);
 
   addSiblingfolderConnections();
 
-  fs.writeFile(currentWorkingDirectory + '/' + outputFileName, markdownText, function(err){
+  fs.writeFile(path.join(currentWorkingDirectory,outputFileName), markdownText, function(err){
     if (err) return;
     // console.log(outputFileName +  '>' + outputText);
   });
@@ -221,8 +227,8 @@ var addSiblingfolderConnections = function(){
       }
     }
   }
-  console.log('lines');
-  console.log(lines);
+  // console.log('lines');
+  // console.log(lines);
   markdownText = lines.join('\n');
 };
 
@@ -239,7 +245,7 @@ folders[key] = {
 };
 fs.readdir(searchPath, function(err, list){
 list.forEach(function(item){
-    if(!fs.lstatSync(searchPath + '/' + item).isDirectory()){
+    if(!fs.lstatSync(path.join(searchPath,item)).isDirectory()){
       if(folders[key].files.indexOf(item) === -1){
         folders[key].files.push(item);
       }

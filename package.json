@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/JohnByrneRepo/mddir"
+    "url": "https://github.com/charles-liang/mddir"
   },
   "keywords": [
     "Markdown",
@@ -16,10 +16,10 @@
     "Service",
     "Parsing"
   ],
-  "author": "John Byrne",
+  "author": "charles-liang",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/JohnByrneRepo/mddir/issues"
+    "url": "https://github.com/charles-liang/mddir/issues"
   },
   "engines": {
     "node": ">=0.10.0"
@@ -28,5 +28,5 @@
   "bin": {
     "mddir": "./src/mddir.js"
   },
-  "homepage": "https://github.com/JohnByrneRepo/mddir"
+  "homepage": "https://github.com/charles-liang/mddir"
 }

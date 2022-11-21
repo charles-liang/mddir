@@ -35,8 +35,10 @@ This output allows markdown to automatically generate lists and links
 - me
   - [directoryList.md](directoryList.md)
   - [readme.md](readme.md)
-    - 1
-        - 1.1
-            - 1.1.1
-              - [my.md](1/1.1/1.1.1/my.md)
+  - 1
+    - 1.1
+      - 1.1.1
+        - [1.1.md](1/1.1/1.1.1/1.1.md)
+
+
 ```

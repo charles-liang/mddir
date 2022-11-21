@@ -1,6 +1,6 @@
 # mddir Changelog
 
-## mddir 1.0.2
+## mddir 1.1.1
 
 - fixed path separator between different platforms using path.join depends on node
 - change output layout

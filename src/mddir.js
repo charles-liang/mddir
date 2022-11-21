@@ -20,6 +20,7 @@ var folderIgnoreList = [
   'node_modules'
 ];
 var partition = "-"
+var eachIndent = 2
 var getFolders = function(p){
   fs.readdir(p, function(err, list){
     if (err) return done(err);
@@ -131,7 +132,7 @@ var generateText = function(){
 };
 
 var addFileName = function(parentFolder, name, indent){
-  var indent = indent + 2;
+  var indent = indent + eachIndent;
   markdownText += '';
   for(var i = 0; i < indent; i++){
     // if(i % 3 === 0){
@@ -145,12 +146,12 @@ var addFileName = function(parentFolder, name, indent){
 
 var addFolderName = function(root, parentFolder, index){
   var name = path.join(root, parentFolder)
-  console.log("1", name, parentFolder, index)
+  // console.log("1", name, parentFolder, index)
   if(folders[name] !== undefined){
     if(folders[name].marked){
       return;
     }
-    var indent = (folders[name].depth - startDepth) * 4;
+    var indent = (folders[name].depth - startDepth) * eachIndent;
     markdownText += '';
     for(var i = 0; i < indent; i++){
       markdownText += ' ';
